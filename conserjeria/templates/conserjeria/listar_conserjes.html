@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Conserje{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">👮 Conserje</h1>
+    <a href="{% url 'conserjeria:crear_conserje' %}"
+       class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-semibold shadow transition">
+        ➕ Crear Conserje
+    </a>
+</div>
+
+<div class="bg-white rounded-2xl shadow overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+            <thead class="text-gray-500 border-b bg-gray-50">
+                <tr>
+                    <th class="py-3 px-4">Nombre</th>
+                    <th class="py-3 px-4">Usuario</th>
+                    <th class="py-3 px-4">RUT</th>
+                    <th class="py-3 px-4">Teléfono</th>
+                    <th class="py-3 px-4">Dirección</th>
+                    <th class="py-3 px-4 text-right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in conserjes %}
+                <tr class="border-b last:border-0 hover:bg-gray-50">
+                    <td class="py-3 px-4 font-medium text-gray-800">{{ c.nombre }} {{ c.apellido }}</td>
+                    <td class="py-3 px-4">{{ c.user.username }}</td>
+                    <td class="py-3 px-4">{{ c.rut }}</td>
+                    <td class="py-3 px-4">{{ c.telefono }}</td>
+                    <td class="py-3 px-4">{{ c.direccion }}</td>
+                    <td class="py-3 px-4 text-right whitespace-nowrap">
+                        <a href="{% url 'conserjeria:editar_conserje' c.pk %}"
+                           class="text-indigo-600 hover:underline text-xs font-medium mr-4">Editar</a>
+                        <a href="{% url 'conserjeria:eliminar_conserje' c.pk %}"
+                           class="text-red-600 hover:underline text-xs font-medium">Eliminar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="py-6 text-gray-400 text-center">Aún no hay conserjes registrados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Salida de Vehículos{% endblock %}
+{% block content %}
+<h1 class="text-xl font-bold text-gray-800 mb-6">🚙 Salida de Vehículos de Visita</h1>
+
+<div class="bg-white rounded-2xl shadow overflow-x-auto">
+    <table class="w-full text-sm text-left">
+        <thead class="bg-gray-50 text-gray-500 border-b">
+            <tr>
+                <th class="py-3 px-4">N° Estacionamiento</th>
+                <th class="py-3 px-4">Patente</th>
+                <th class="py-3 px-4">Conductor</th>
+                <th class="py-3 px-4">Depto destino</th>
+                <th class="py-3 px-4">Entrada</th>
+                <th class="py-3 px-4">Tiempo transcurrido</th>
+                <th class="py-3 px-4 text-right">Acción</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-estacionamientos">
+            {% for r in registros %}
+            <tr class="border-b last:border-0 fila-estacionamiento" data-entrada="{{ r.fecha_hora_entrada.isoformat }}">
+                <td class="py-3 px-4">{{ r.numero_estacionamiento.numero }}</td>
+                <td class="py-3 px-4">{{ r.patente }}</td>
+                <td class="py-3 px-4">{{ r.conductor }}</td>
+                <td class="py-3 px-4">{{ r.departamento_destino.numero }}</td>
+                <td class="py-3 px-4 whitespace-nowrap">{{ r.fecha_hora_entrada|date:"d/m/Y H:i" }}</td>
+                <td class="py-3 px-4 celda-tiempo font-medium">—</td>
+                <td class="py-3 px-4 text-right">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="registro_id" value="{{ r.id }}">
+                        <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-1.5 rounded-lg font-semibold">
+                            Salir
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="py-6 text-center text-gray-400">No hay vehículos estacionados actualmente.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Calcula y actualiza el "Tiempo transcurrido" de cada fila.
+    // Si supera las 6 horas, pinta la fila completa de rojo.
+    function actualizarTiempos() {
+        const filas = document.querySelectorAll('.fila-estacionamiento');
+        const ahora = new Date();
+
+        filas.forEach(function (fila) {
+            const entrada = new Date(fila.dataset.entrada);
+            const diffMs = ahora - entrada;
+            const diffMin = Math.floor(diffMs / 60000);
+            const horas = Math.floor(diffMin / 60);
+            const minutos = diffMin % 60;
+
+            const celda = fila.querySelector('.celda-tiempo');
+            celda.textContent = horas + 'h ' + minutos + 'min';
+
+            if (horas >= 6) {
+                fila.classList.add('bg-red-100', 'text-red-700');
+            } else {
+                fila.classList.remove('bg-red-100', 'text-red-700');
+            }
+        });
+    }
+
+    // Ejecuta al cargar y luego cada 10 minutos (600000 ms)
+    actualizarTiempos();
+    setInterval(actualizarTiempos, 600000);
+</script>
+{% endblock %}

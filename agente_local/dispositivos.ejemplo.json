@@ -1,0 +1,15 @@
+{
+  "url_base": "http://54.94.153.158",
+  "dispositivos": [
+    {
+      "nombre": "Lavadora 1",
+      "ip_shelly": "192.168.1.50",
+      "token": "PEGAR_ACA_EL_TOKEN_DESDE_ADMIN"
+    },
+    {
+      "nombre": "Lavadora 2",
+      "ip_shelly": "192.168.1.51",
+      "token": "PEGAR_ACA_EL_TOKEN_DESDE_ADMIN"
+    }
+  ]
+}

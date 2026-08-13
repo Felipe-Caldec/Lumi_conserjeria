@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Editar Área Común{% endblock %}
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-2xl shadow p-8">
+        <h1 class="text-xl font-bold text-gray-800 mb-6">✏️ Editar Área Común</h1>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}<p class="text-gray-400 text-xs mt-1">{{ field.help_text }}</p>{% endif %}
+                    {% if field.errors %}<p class="text-red-600 text-xs mt-1">{{ field.errors|striptags }}</p>{% endif %}
+                </div>
+            {% endfor %}
+            <div class="flex justify-end gap-3">
+                <a href="{% url 'conserjeria:listar_areas_comunes' %}" class="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">Volver</a>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-semibold">Guardar cambios</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-8">
+        <h2 class="text-lg font-semibold text-gray-700 mb-2">Horario disponible</h2>
+        <p class="text-xs text-gray-400 mb-4">
+            Estos bloques son los tramos en que los residentes pueden reservar esta área desde
+            el formulario público de reserva (pantalla de login). Si el horario cruza la
+            medianoche (ej. Viernes 20:00 a Sábado 02:00), ingrésalo tal cual con esa hora de
+            término "menor": el sistema lo divide automáticamente en dos bloques.
+        </p>
+
+        <form method="post" action="{% url 'conserjeria:agregar_bloque_horario' area.pk %}"
+              class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 items-end">
+            {% csrf_token %}
+            {% for field in bloque_form %}
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+            {% endfor %}
+            <div class="sm:col-span-3 flex justify-end">
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                    ➕ Agregar bloque
+                </button>
+            </div>
+        </form>
+
+        <div class="overflow-x-auto max-h-72 overflow-y-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-gray-500 border-b sticky top-0 bg-white">
+                    <tr>
+                        <th class="py-2">Día</th>
+                        <th class="py-2">Desde</th>
+                        <th class="py-2">Hasta</th>
+                        <th class="py-2"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bloques %}
+                    <tr class="border-b last:border-0">
+                        <td class="py-2">{{ b.get_dia_semana_display }}</td>
+                        <td class="py-2">{{ b.hora_inicio|time:"H:i" }}</td>
+                        <td class="py-2">{{ b.hora_termino|time:"H:i" }}</td>
+                        <td class="py-2 text-right">
+                            <form method="post" action="{% url 'conserjeria:eliminar_bloque_horario' b.pk %}"
+                                  onsubmit="return confirm('¿Eliminar este bloque de horario?');">
+                                {% csrf_token %}
+                                <button type="submit" class="text-red-600 hover:underline text-xs font-medium">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="py-3 text-gray-400 text-center">Sin bloques de horario aún.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

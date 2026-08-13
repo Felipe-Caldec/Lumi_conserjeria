@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Residentes por Departamento{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white rounded-2xl shadow p-8">
+    <h1 class="text-xl font-bold text-gray-800 mb-6">👥 Residentes por Departamento</h1>
+
+    <!-- Selección de Departamento: recarga la página vía GET (?departamento_id=N) -->
+    <form method="get" action="{% url 'conserjeria:visualizar_residentes' %}" class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Departamento</label>
+        <select name="departamento_id" onchange="this.form.submit()"
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none">
+            <option value="">-- Seleccione un departamento --</option>
+            {% for d in departamentos %}
+                <option value="{{ d.id }}" {% if departamento_id|stringformat:"s" == d.id|stringformat:"s" %}selected{% endif %}>
+                    Depto {{ d.numero }}
+                </option>
+            {% endfor %}
+        </select>
+        <noscript><button type="submit" class="mt-2 text-sm text-indigo-600 underline">Aplicar</button></noscript>
+    </form>
+
+    {% if departamento_actual %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-500 border-b">
+                    <tr>
+                        <th class="py-3 px-4">Nombre</th>
+                        <th class="py-3 px-4">Apellido</th>
+                        <th class="py-3 px-4">RUT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in residentes %}
+                    <tr class="border-b last:border-0">
+                        <td class="py-3 px-4">{{ r.nombre }}</td>
+                        <td class="py-3 px-4">{{ r.apellido }}</td>
+                        <td class="py-3 px-4">{{ r.rut }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="py-6 text-center text-gray-400">
+                        Este departamento no tiene residentes registrados.
+                    </td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-gray-400 text-sm">Selecciona un departamento para ver sus residentes.</p>
+    {% endif %}
+</div>
+{% endblock %}

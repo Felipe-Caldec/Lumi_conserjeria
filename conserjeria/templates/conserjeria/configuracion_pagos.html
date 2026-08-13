@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Configuración de Pagos{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white rounded-2xl shadow p-8">
+    <h1 class="text-xl font-bold text-gray-800 mb-2">💳 Configuración de Pagos</h1>
+    <p class="text-sm text-gray-500 mb-6">Edificio: <span class="font-semibold">{{ edificio.nombre }}</span></p>
+
+    {% if not edificio.codigo_comercio_webpay %}
+    <div class="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg p-3 mb-6">
+        Este edificio todavía no está afiliado a Webpay (no tiene código de comercio asignado).
+        Mientras eso no ocurra, ninguna reserva de área común que requiera pago podrá completarse,
+        aunque la configures acá. Contacta al Administrador de la aplicación para gestionar la afiliación.
+    </div>
+    {% endif %}
+
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="flex items-start gap-3">
+                {{ field }}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                    {% if field.help_text %}<p class="text-gray-400 text-xs mt-1">{{ field.help_text }}</p>{% endif %}
+                    {% if field.errors %}<p class="text-red-600 text-xs mt-1">{{ field.errors|striptags }}</p>{% endif %}
+                </div>
+            </div>
+        {% endfor %}
+        <div class="flex justify-end gap-3 pt-2">
+            <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white px-5 py-2 rounded-lg font-semibold">Guardar</button>
+        </div>
+    </form>
+
+    <p class="text-xs text-gray-400 mt-6">
+        El monto de la garantía y si un área específica requiere pago se configuran en cada
+        <a href="{% url 'conserjeria:listar_areas_comunes' %}" class="text-rose-600 hover:underline">Área Común</a>.
+    </p>
+</div>
+{% endblock %}

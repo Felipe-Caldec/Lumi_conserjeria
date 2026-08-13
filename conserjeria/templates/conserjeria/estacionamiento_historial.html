@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Historial de Estacionamientos{% endblock %}
+{% block content %}
+<h1 class="text-xl font-bold text-gray-800 mb-6">📜 Historial de Estacionamientos</h1>
+
+<form method="get" class="bg-white rounded-2xl shadow p-4 mb-6 flex flex-wrap gap-4 items-end">
+    <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Desde</label>
+        {{ filtro_form.fecha_desde }}
+    </div>
+    <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Hasta</label>
+        {{ filtro_form.fecha_hasta }}
+    </div>
+    <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Departamento</label>
+        {{ filtro_form.departamento }}
+    </div>
+</form>
+
+<div class="bg-white rounded-2xl shadow overflow-x-auto">
+    <table class="w-full text-sm text-left">
+        <thead class="bg-gray-50 text-gray-500 border-b">
+            <tr>
+                <th class="py-3 px-4">N° Estacionamiento</th>
+                <th class="py-3 px-4">Patente</th>
+                <th class="py-3 px-4">Conductor</th>
+                <th class="py-3 px-4">Depto</th>
+                <th class="py-3 px-4">Entrada</th>
+                <th class="py-3 px-4">Salida</th>
+                <th class="py-3 px-4">Tiempo de estadía</th>
+                <th class="py-3 px-4">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in registros %}
+            <tr class="border-b last:border-0">
+                <td class="py-3 px-4">{{ r.numero_estacionamiento.numero }}</td>
+                <td class="py-3 px-4">{{ r.patente }}</td>
+                <td class="py-3 px-4">{{ r.conductor }}</td>
+                <td class="py-3 px-4">{{ r.departamento_destino.numero }}</td>
+                <td class="py-3 px-4 whitespace-nowrap">{{ r.fecha_hora_entrada|date:"d/m/Y H:i" }}</td>
+                <td class="py-3 px-4 whitespace-nowrap">{{ r.fecha_hora_salida|date:"d/m/Y H:i"|default:"—" }}</td>
+                <td class="py-3 px-4 whitespace-nowrap">
+                    {% if r.fecha_hora_salida %}
+                        {{ r.fecha_hora_entrada|timesince:r.fecha_hora_salida }}
+                    {% else %}
+                        {{ r.fecha_hora_entrada|timesince }} <span class="text-yellow-600">(en curso)</span>
+                    {% endif %}
+                </td>
+                <td class="py-3 px-4">
+                    <span class="px-2 py-0.5 rounded-full text-xs {% if r.estado == 'ACTIVO' %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ r.get_estado_display }}
+                    </span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="py-6 text-center text-gray-400">Sin registros.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Edificios{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">🏢 Edificios</h1>
+    <div class="flex gap-3">
+        <a href="{% url 'conserjeria:listar_admins_edificio' %}"
+           class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+            👤 Administradores de Edificio
+        </a>
+        <a href="{% url 'conserjeria:crear_edificio' %}"
+           class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+            ➕ Nuevo Edificio
+        </a>
+    </div>
+</div>
+
+<div class="bg-white rounded-xl shadow overflow-x-auto">
+    <table class="w-full text-sm text-left">
+        <thead class="text-gray-500 border-b bg-gray-50">
+            <tr>
+                <th class="py-3 px-4">Nombre</th>
+                <th class="py-3 px-4">Dirección</th>
+                <th class="py-3 px-4">Estado</th>
+                <th class="py-3 px-4">Módulos habilitados</th>
+                <th class="py-3 px-4">Creado</th>
+                <th class="py-3 px-4"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for edificio in edificios %}
+            <tr class="border-b last:border-0">
+                <td class="py-2 px-4 font-medium text-gray-800">{{ edificio.nombre }}</td>
+                <td class="py-2 px-4 text-gray-600">{{ edificio.direccion|default:"—" }}</td>
+                <td class="py-2 px-4">
+                    <span class="px-2 py-0.5 rounded-full text-xs {% if edificio.activo %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                        {% if edificio.activo %}Activo{% else %}Suspendido{% endif %}
+                    </span>
+                </td>
+                <td class="py-2 px-4">
+                    <div class="flex flex-wrap gap-1">
+                        {% if edificio.modulo_reservas %}<span class="px-2 py-0.5 rounded-full text-xs bg-rose-100 text-rose-700">🎉 Reservas</span>{% endif %}
+                        {% if edificio.modulo_consulta_estacionamiento %}<span class="px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-700">🚗 Consulta estac.</span>{% endif %}
+                        {% if edificio.modulo_lavadoras %}<span class="px-2 py-0.5 rounded-full text-xs bg-sky-100 text-sky-700">🧺 Lavadoras</span>{% endif %}
+                        {% if not edificio.modulo_reservas and not edificio.modulo_consulta_estacionamiento and not edificio.modulo_lavadoras %}
+                        <span class="text-gray-400 text-xs italic">Ninguno (solo base)</span>
+                        {% endif %}
+                    </div>
+                </td>
+                <td class="py-2 px-4 text-gray-500">{{ edificio.creado_en|date:"d-m-Y" }}</td>
+                <td class="py-2 px-4 text-right">
+                    <a href="{% url 'conserjeria:editar_edificio' edificio.pk %}" class="text-indigo-600 hover:underline text-sm font-medium">Editar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="py-6 text-center text-gray-400">Sin edificios registrados todavía.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

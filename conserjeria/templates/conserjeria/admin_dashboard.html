@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Panel Administrador{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-800 mb-6">Panel de Administración</h1>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+    <a href="{% url 'conserjeria:listar_conserjes' %}"
+       class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+        👮 Conserje
+    </a>
+    <a href="{% url 'conserjeria:crear_departamento' %}"
+       class="bg-teal-600 hover:bg-teal-700 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+        🏠 Crear Departamentos
+    </a>
+    <a href="{% url 'conserjeria:crear_residente' %}"
+       class="bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+        👤 Crear Residentes
+    </a>
+    <a href="{% url 'conserjeria:visualizar_residentes' %}"
+       class="bg-sky-600 hover:bg-sky-700 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+        👥 Residentes por Depto
+    </a>
+    {% if request.edificio.modulo_reservas %}
+    <a href="{% url 'conserjeria:listar_areas_comunes' %}"
+       class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+        🎉 Áreas Comunes
+    </a>
+    {% endif %}
+    <a href="{% url 'conserjeria:listar_estacionamientos' %}"
+       class="bg-amber-600 hover:bg-amber-700 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+        🚗 Estacionamientos
+    </a>
+    <a href="{% url 'conserjeria:reportes_dashboard' %}"
+       class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+        📊 Reportes
+    </a>
+    {% if request.edificio.modulo_reservas %}
+    <a href="{% url 'conserjeria:configuracion_pagos' %}"
+       class="bg-rose-600 hover:bg-rose-700 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+        💳 Configuración de Pagos
+    </a>
+    {% endif %}
+</div>
+
+<h2 class="text-xl font-bold text-gray-800 mb-4">Visualizador — Registros Globales</h2>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">📦 Paquetería (últimos 20)</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-gray-500 border-b">
+                    <tr><th class="py-1 pr-2">Depto</th><th class="py-1 pr-2">Destinatario</th><th class="py-1 pr-2">Estado</th></tr>
+                </thead>
+                <tbody>
+                    {% for p in paquetes %}
+                    <tr class="border-b last:border-0">
+                        <td class="py-1 pr-2">{{ p.departamento.numero }}</td>
+                        <td class="py-1 pr-2">{{ p.destinatario|default:"—" }}</td>
+                        <td class="py-1 pr-2">
+                            <span class="px-2 py-0.5 rounded-full text-xs {% if p.estado == 'PENDIENTE' %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %}">
+                                {{ p.get_estado_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="py-3 text-gray-400 text-center">Sin registros</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">🚗 Estacionamientos (últimos 20)</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-gray-500 border-b">
+                    <tr><th class="py-1 pr-2">Patente</th><th class="py-1 pr-2">Depto</th><th class="py-1 pr-2">Estado</th></tr>
+                </thead>
+                <tbody>
+                    {% for e in estacionamientos %}
+                    <tr class="border-b last:border-0">
+                        <td class="py-1 pr-2">{{ e.patente }}</td>
+                        <td class="py-1 pr-2">{{ e.departamento_destino.numero }}</td>
+                        <td class="py-1 pr-2">
+                            <span class="px-2 py-0.5 rounded-full text-xs {% if e.estado == 'ACTIVO' %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %}">
+                                {{ e.get_estado_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="py-3 text-gray-400 text-center">Sin registros</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">📦➡️ Mudanzas (últimas 20)</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-gray-500 border-b">
+                    <tr><th class="py-1 pr-2">Depto</th><th class="py-1 pr-2">Día</th><th class="py-1 pr-2">Responsable</th></tr>
+                </thead>
+                <tbody>
+                    {% for m in mudanzas %}
+                    <tr class="border-b last:border-0">
+                        <td class="py-1 pr-2">{{ m.departamento.numero }}</td>
+                        <td class="py-1 pr-2">{{ m.dia_mudanza }}</td>
+                        <td class="py-1 pr-2">{{ m.responsable }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="py-3 text-gray-400 text-center">Sin registros</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">🎉 Reservas Áreas Comunes (últimas 20)</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-gray-500 border-b">
+                    <tr><th class="py-1 pr-2">Área</th><th class="py-1 pr-2">Depto</th><th class="py-1 pr-2">Día</th></tr>
+                </thead>
+                <tbody>
+                    {% for r in reservas %}
+                    <tr class="border-b last:border-0">
+                        <td class="py-1 pr-2">{{ r.area_comun.nombre }}</td>
+                        <td class="py-1 pr-2">{{ r.departamento.numero }}</td>
+                        <td class="py-1 pr-2">{{ r.dia_reserva }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="py-3 text-gray-400 text-center">Sin registros</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">🧑‍🤝‍🧑 Visitas (últimas 20)</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-gray-500 border-b">
+                    <tr><th class="py-1 pr-2">Nombre</th><th class="py-1 pr-2">Depto</th><th class="py-1 pr-2">Día</th></tr>
+                </thead>
+                <tbody>
+                    {% for v in visitas %}
+                    <tr class="border-b last:border-0">
+                        <td class="py-1 pr-2">{{ v.nombre_visita }}</td>
+                        <td class="py-1 pr-2">{{ v.departamento.numero }}</td>
+                        <td class="py-1 pr-2">{{ v.dia_visita }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="py-3 text-gray-400 text-center">Sin registros</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

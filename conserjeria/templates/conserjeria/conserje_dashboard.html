@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Panel Conserje{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-800 mb-2">Panel de Conserjería</h1>
+<p class="text-gray-500 mb-8">Selecciona una operación</p>
+
+<div>
+    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">📦 Paquetería</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <a href="{% url 'conserjeria:paqueteria_recibir' %}"
+           class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+            📥 Recibir
+        </a>
+        <a href="{% url 'conserjeria:paqueteria_entregar' %}"
+           class="bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+            📤 Entregar
+        </a>
+        <a href="{% url 'conserjeria:paqueteria_historial' %}"
+           class="bg-indigo-400 hover:bg-indigo-500 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+            📜 Historial (Paquetes)
+        </a>
+    </div>
+
+    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">🚗 Estacionamiento de Visitas</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <a href="{% url 'conserjeria:estacionamiento_estacionar' %}"
+           class="bg-teal-600 hover:bg-teal-700 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+            🅿️ Estacionar
+        </a>
+        <a href="{% url 'conserjeria:estacionamiento_salir' %}"
+           class="bg-teal-500 hover:bg-teal-600 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+            🚙 Salir
+        </a>
+        <a href="{% url 'conserjeria:estacionamiento_historial' %}"
+           class="bg-teal-400 hover:bg-teal-500 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+            📜 Historial (Estacionamientos)
+        </a>
+    </div>
+
+    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">🧑‍🤝‍🧑 Visitas</h2>
+    <div class="grid grid-cols-1 gap-4 mb-8">
+        <a href="{% url 'conserjeria:registro_visitas' %}"
+           class="bg-violet-500 hover:bg-violet-600 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+            🧑‍🤝‍🧑 Registro de Visitas
+        </a>
+    </div>
+
+    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">📦➡️ Mudanzas y 🎉 Áreas Comunes</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="{% url 'conserjeria:mudanzas' %}"
+           class="bg-amber-500 hover:bg-amber-600 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+            📦➡️ Agendar Mudanza
+        </a>
+        {% if request.edificio.modulo_reservas %}
+        <a href="{% url 'conserjeria:reservas' %}"
+           class="bg-rose-500 hover:bg-rose-600 text-white rounded-xl p-6 shadow text-center font-semibold transition">
+            🎉 Reservar Área Común
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

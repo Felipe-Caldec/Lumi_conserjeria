@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Eliminar Conserje{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white rounded-2xl shadow p-8">
+    <h1 class="text-xl font-bold text-gray-800 mb-4">🗑️ Eliminar Conserje</h1>
+    <p class="text-gray-600 mb-6">
+        ¿Confirmas que deseas eliminar a
+        <span class="font-semibold text-gray-800">{{ conserje.nombre }} {{ conserje.apellido }}</span>
+        (usuario <span class="font-mono">{{ conserje.user.username }}</span>)?
+    </p>
+    <p class="text-xs text-gray-400 mb-6">
+        Si ya tiene historial asociado (paquetes recibidos, visitas registradas, etc.), no se
+        podrá borrar sin perder esos registros: en ese caso su cuenta simplemente se
+        desactivará y dejará de aparecer en la lista.
+    </p>
+    <form method="post" class="flex justify-end gap-3">
+        {% csrf_token %}
+        <a href="{% url 'conserjeria:listar_conserjes' %}"
+           class="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">Cancelar</a>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-semibold">
+            Sí, eliminar
+        </button>
+    </form>
+</div>
+{% endblock %}

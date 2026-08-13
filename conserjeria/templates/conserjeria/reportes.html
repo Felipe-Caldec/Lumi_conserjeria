@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% block title %}Reportes{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.plot.ly/plotly-3.7.0.min.js" charset="utf-8"></script>
+{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold text-gray-800 mb-2">📊 Reportes</h1>
+<p class="text-sm text-gray-500 mb-6">
+    Métricas del edificio <strong>{{ request.edificio.nombre }}</strong> para el período seleccionado.
+    Las métricas de <em>origen de pedidos</em> son siempre respecto de hoy, la semana y el mes en curso.
+</p>
+
+<form method="get" class="bg-white rounded-2xl shadow p-4 mb-8 flex flex-wrap gap-4 items-end">
+    <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Desde</label>
+        {{ filtro_form.fecha_desde }}
+    </div>
+    <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Hasta</label>
+        {{ filtro_form.fecha_hasta }}
+    </div>
+    <noscript><button type="submit" class="text-sm text-indigo-600 underline">Filtrar</button></noscript>
+    <span class="text-xs text-gray-400">
+        Rango aplicado a los gráficos: {{ fecha_desde|date:"d-m-Y" }} al {{ fecha_hasta|date:"d-m-Y" }}
+    </span>
+</form>
+
+<!-- Tarjetas resumen -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+    <div class="bg-white rounded-xl shadow p-4 text-center">
+        <div class="text-3xl font-bold text-indigo-600">{{ total_paquetes }}</div>
+        <div class="text-xs text-gray-500 mt-1">📦 Pedidos en el período</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4 text-center">
+        <div class="text-3xl font-bold text-teal-600">{{ total_estacionamientos }}</div>
+        <div class="text-xs text-gray-500 mt-1">🚗 Estacionamientos en el período</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4 text-center">
+        <div class="text-3xl font-bold text-cyan-600">{{ total_visitas }}</div>
+        <div class="text-xs text-gray-500 mt-1">🧑‍🤝‍🧑 Visitas en el período</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4 text-center">
+        <div class="text-3xl font-bold text-fuchsia-600">{{ total_reservas }}</div>
+        <div class="text-xs text-gray-500 mt-1">🎉 Reservas de áreas comunes</div>
+    </div>
+</div>
+
+{{ datos_graficos|json_script:"datos-graficos" }}
+
+<!-- ===================== PAQUETERÍA / PEDIDOS ===================== -->
+<h2 class="text-xl font-bold text-gray-800 mb-4">📦 Pedidos (Paquetería)</h2>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por rango de horario (tramos de 3 hrs)</h3>
+        <div id="chart-paquetes-tramo" class="h-[220px] relative"></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por día</h3>
+        <div id="chart-paquetes-dia" class="h-[220px] relative"></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por semana</h3>
+        <div id="chart-paquetes-semana" class="h-[220px] relative"></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por mes</h3>
+        <div id="chart-paquetes-mes" class="h-[220px] relative"></div>
+    </div>
+</div>
+
+<div class="bg-white rounded-2xl shadow p-4 mb-10">
+    <h3 class="font-semibold text-gray-700 mb-3">Origen de los pedidos — hoy / semana / mes en curso</h3>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+            <thead class="text-gray-500 border-b">
+                <tr>
+                    <th class="py-2 pr-4">Origen</th>
+                    <th class="py-2 pr-4">Hoy</th>
+                    <th class="py-2 pr-4">Semana en curso</th>
+                    <th class="py-2 pr-4">Mes en curso</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fila in origen_stats %}
+                <tr class="border-b last:border-0">
+                    <td class="py-2 pr-4">{{ fila.origen }}</td>
+                    <td class="py-2 pr-4">{{ fila.hoy_count }}</td>
+                    <td class="py-2 pr-4">{{ fila.semana_count }}</td>
+                    <td class="py-2 pr-4">{{ fila.mes_count }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="py-4 text-center text-gray-400">Sin pedidos registrados aún.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===================== VISITAS ===================== -->
+<h2 class="text-xl font-bold text-gray-800 mb-4">🧑‍🤝‍🧑 Registro de Visitas</h2>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por rango de horario (tramos de 3 hrs)</h3>
+        <div id="chart-visitas-tramo" class="h-[220px] relative"></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por día</h3>
+        <div id="chart-visitas-dia" class="h-[220px] relative"></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por semana</h3>
+        <div id="chart-visitas-semana" class="h-[220px] relative"></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por mes</h3>
+        <div id="chart-visitas-mes" class="h-[220px] relative"></div>
+    </div>
+</div>
+
+<!-- ===================== ESTACIONAMIENTO ===================== -->
+<h2 class="text-xl font-bold text-gray-800 mb-4">🚗 Uso de Estacionamiento de Visitas</h2>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por rango de horario (tramos de 3 hrs)</h3>
+        <div id="chart-estac-tramo" class="h-[220px] relative"></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por día</h3>
+        <div id="chart-estac-dia" class="h-[220px] relative"></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por semana</h3>
+        <div id="chart-estac-semana" class="h-[220px] relative"></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por mes</h3>
+        <div id="chart-estac-mes" class="h-[220px] relative"></div>
+    </div>
+</div>
+
+<!-- ===================== ÁREAS COMUNES ===================== -->
+<h2 class="text-xl font-bold text-gray-800 mb-4">🎉 Arriendo de Áreas Comunes</h2>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por día</h3>
+        <div id="chart-reservas-dia" class="h-[220px] relative"></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por semana</h3>
+        <div id="chart-reservas-semana" class="h-[220px] relative"></div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4">
+        <h3 class="font-semibold text-gray-700 mb-3">Por mes</h3>
+        <div id="chart-reservas-mes" class="h-[220px] relative"></div>
+    </div>
+</div>
+
+<script>
+(function () {
+    let datos;
+    try {
+        datos = JSON.parse(document.getElementById('datos-graficos').textContent);
+    } catch (err) {
+        console.error('No se pudieron leer los datos de los gráficos:', err);
+        return;
+    }
+
+    function colorPara(divId) {
+        if (divId.startsWith('chart-visitas')) return '#0891b2';   // cyan-600
+        if (divId.startsWith('chart-estac')) return '#0d9488';     // teal-600
+        if (divId.startsWith('chart-reservas')) return '#c026d3';  // fuchsia-600
+        return '#4f46e5';                                          // indigo-600
+    }
+
+    function mostrarSinDatos(el) {
+        const aviso = document.createElement('div');
+        aviso.className = 'absolute inset-0 flex items-center justify-center text-sm text-gray-400 text-center px-4';
+        aviso.textContent = 'Sin datos en el período seleccionado';
+        el.appendChild(aviso);
+    }
+
+    function crearGrafico(divId, claveDatos) {
+        const el = document.getElementById(divId);
+        if (!el) return;
+        const serie = datos[claveDatos] || { labels: [], valores: [] };
+
+        if (!serie.labels || !serie.labels.length) {
+            mostrarSinDatos(el);
+            return;
+        }
+
+        try {
+            Plotly.newPlot(el, [{
+                type: 'bar',
+                x: serie.labels,
+                y: serie.valores,
+                marker: { color: colorPara(divId) },
+                hovertemplate: '%{x}: %{y}<extra></extra>',
+            }], {
+                margin: { l: 32, r: 12, t: 8, b: 48 },
+                yaxis: { rangemode: 'tozero', tickformat: 'd', fixedrange: true },
+                xaxis: { tickangle: -35, fixedrange: true },
+                font: { size: 11, family: 'inherit' },
+                showlegend: false,
+            }, {
+                displayModeBar: false,
+                responsive: true,
+            });
+        } catch (err) {
+            console.error(`Error al graficar ${divId}:`, err);
+            mostrarSinDatos(el);
+        }
+    }
+
+    // Paquetería
+    crearGrafico('chart-paquetes-tramo', 'paquetes_tramo');
+    crearGrafico('chart-paquetes-dia', 'paquetes_dia');
+    crearGrafico('chart-paquetes-semana', 'paquetes_semana');
+    crearGrafico('chart-paquetes-mes', 'paquetes_mes');
+
+    // Visitas
+    crearGrafico('chart-visitas-tramo', 'visitas_tramo');
+    crearGrafico('chart-visitas-dia', 'visitas_dia');
+    crearGrafico('chart-visitas-semana', 'visitas_semana');
+    crearGrafico('chart-visitas-mes', 'visitas_mes');
+
+    // Estacionamiento
+    crearGrafico('chart-estac-tramo', 'estac_tramo');
+    crearGrafico('chart-estac-dia', 'estac_dia');
+    crearGrafico('chart-estac-semana', 'estac_semana');
+    crearGrafico('chart-estac-mes', 'estac_mes');
+
+    // Áreas comunes
+    crearGrafico('chart-reservas-dia', 'reservas_dia');
+    crearGrafico('chart-reservas-semana', 'reservas_semana');
+    crearGrafico('chart-reservas-mes', 'reservas_mes');
+})();
+</script>
+{% endblock %}

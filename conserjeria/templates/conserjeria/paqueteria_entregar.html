@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Entregar Paquetes{% endblock %}
+{% block content %}
+<h1 class="text-xl font-bold text-gray-800 mb-6">📤 Entregar Paquetes</h1>
+
+<div class="bg-white rounded-2xl shadow overflow-x-auto">
+    <table class="w-full text-sm text-left">
+        <thead class="bg-gray-50 text-gray-500 border-b">
+            <tr>
+                <th class="py-3 px-4">Depto</th>
+                <th class="py-3 px-4">Origen</th>
+                <th class="py-3 px-4">Destinatario</th>
+                <th class="py-3 px-4">Descripción</th>
+                <th class="py-3 px-4">Recepción</th>
+                <th class="py-3 px-4">Recibido por</th>
+                <th class="py-3 px-4 text-right">Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for paquete, recibido_form in filas %}
+            <tr class="border-b last:border-0 align-top">
+                <td class="py-3 px-4 font-medium">{{ paquete.departamento.numero }}</td>
+                <td class="py-3 px-4">{{ paquete.origen }}</td>
+                <td class="py-3 px-4">{{ paquete.destinatario|default:"—" }}</td>
+                <td class="py-3 px-4 max-w-xs">{{ paquete.descripcion|default:"—" }}</td>
+                <td class="py-3 px-4 whitespace-nowrap">{{ paquete.fecha_recepcion|date:"d/m/Y H:i" }}</td>
+                <td class="py-3 px-4">
+                    <!-- Selección de "Recibido por": recarga tradicional (POST + reload) -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="paquete_id" value="{{ paquete.id }}">
+                        <input type="hidden" name="action" value="set_recibido">
+                        {{ recibido_form.recibido_por }}
+                    </form>
+                </td>
+                <td class="py-3 px-4 text-right">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="paquete_id" value="{{ paquete.id }}">
+                        <input type="hidden" name="action" value="entregar">
+                        <button type="submit"
+                            {% if not paquete.recibido_por_id %}disabled{% endif %}
+                            class="px-4 py-1.5 rounded-lg font-semibold text-white transition
+                                {% if paquete.recibido_por_id %}bg-green-600 hover:bg-green-700{% else %}bg-gray-300 cursor-not-allowed{% endif %}">
+                            Entregar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="py-6 text-center text-gray-400">No hay paquetes pendientes.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

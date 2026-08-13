@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Registro de Visitas{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-xl font-bold text-gray-800">🧑‍🤝‍🧑 Registro de Visitas</h1>
+    <button onclick="document.getElementById('modal-visita').classList.remove('hidden')"
+        class="bg-violet-500 hover:bg-violet-600 text-white px-5 py-2 rounded-lg font-semibold">
+        + Registrar visita
+    </button>
+</div>
+
+<div class="bg-white rounded-2xl shadow overflow-x-auto">
+    <table class="w-full text-sm text-left">
+        <thead class="bg-gray-50 text-gray-500 border-b">
+            <tr>
+                <th class="py-3 px-4">Nombre visita</th>
+                <th class="py-3 px-4">RUT</th>
+                <th class="py-3 px-4">Depto</th>
+                <th class="py-3 px-4">Día</th>
+                <th class="py-3 px-4">Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in visitas %}
+            <tr class="border-b last:border-0 {% if v.dia_visita == hoy %}bg-yellow-100{% endif %}">
+                <td class="py-3 px-4">{{ v.nombre_visita }}</td>
+                <td class="py-3 px-4">{{ v.rut }}</td>
+                <td class="py-3 px-4">{{ v.departamento.numero }}</td>
+                <td class="py-3 px-4">{{ v.dia_visita }}</td>
+                <td class="py-3 px-4">{{ v.hora_visita }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="py-6 text-center text-gray-400">No hay visitas registradas.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Registrar Visita -->
+<div id="modal-visita" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">Registrar visita</h2>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% for field in form %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<p class="text-red-600 text-xs mt-1">{{ field.errors|striptags }}</p>{% endif %}
+            </div>
+            {% endfor %}
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('modal-visita').classList.add('hidden')"
+                    class="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">Cancelar</button>
+                <button type="submit" class="bg-violet-500 hover:bg-violet-600 text-white px-5 py-2 rounded-lg font-semibold">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% if form.errors %}
+<script>document.getElementById('modal-visita').classList.remove('hidden');</script>
+{% endif %}
+{% endblock %}

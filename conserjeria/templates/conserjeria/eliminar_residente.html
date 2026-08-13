@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Eliminar Residente{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white rounded-2xl shadow p-8">
+    <h1 class="text-xl font-bold text-gray-800 mb-4">🗑️ Eliminar Residente</h1>
+    <p class="text-gray-600 mb-6">
+        ¿Confirmas que deseas eliminar a
+        <span class="font-semibold text-gray-800">{{ residente.nombre }} {{ residente.apellido }}</span>
+        del departamento <span class="font-semibold text-gray-800">{{ residente.departamento.numero }}</span>?
+    </p>
+    <form method="post" class="flex justify-end gap-3">
+        {% csrf_token %}
+        <a href="{% url 'conserjeria:crear_residente' %}" class="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">Cancelar</a>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-semibold">Sí, eliminar</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load conserjeria_extras %}
+{% block title %}Historial de Paquetes{% endblock %}
+{% block content %}
+<h1 class="text-xl font-bold text-gray-800 mb-6">📜 Historial de Paquetes</h1>
+
+<form method="get" class="bg-white rounded-2xl shadow p-4 mb-6 flex flex-wrap gap-4 items-end">
+    <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Desde</label>
+        {{ filtro_form.fecha_desde }}
+    </div>
+    <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Hasta</label>
+        {{ filtro_form.fecha_hasta }}
+    </div>
+    <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Departamento</label>
+        {{ filtro_form.departamento }}
+    </div>
+    <noscript><button type="submit" class="text-sm text-indigo-600 underline">Filtrar</button></noscript>
+</form>
+
+<div class="bg-white rounded-2xl shadow overflow-x-auto">
+    <table class="w-full text-sm text-left">
+        <thead class="bg-gray-50 text-gray-500 border-b">
+            <tr>
+                <th class="py-3 px-4">Depto</th>
+                <th class="py-3 px-4">Origen</th>
+                <th class="py-3 px-4">Destinatario</th>
+                <th class="py-3 px-4">Recepción</th>
+                <th class="py-3 px-4">Recibido por (conserje)</th>
+                <th class="py-3 px-4">Entrega</th>
+                <th class="py-3 px-4">Entregado por (conserje)</th>
+                <th class="py-3 px-4">Retirado por (residente)</th>
+                <th class="py-3 px-4">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in paquetes %}
+            <tr class="border-b last:border-0">
+                <td class="py-3 px-4">{{ p.departamento.numero }}</td>
+                <td class="py-3 px-4">{{ p.origen }}</td>
+                <td class="py-3 px-4">{{ p.destinatario|default:"—" }}</td>
+                <td class="py-3 px-4 whitespace-nowrap">{{ p.fecha_recepcion|date:"d/m/Y H:i" }}</td>
+                <td class="py-3 px-4">{{ p.conserje_recibe|nombre_conserje }}</td>
+                <td class="py-3 px-4 whitespace-nowrap">{{ p.fecha_entrega|date:"d/m/Y H:i"|default:"—" }}</td>
+                <td class="py-3 px-4">{{ p.conserje_entrega|nombre_conserje }}</td>
+                <td class="py-3 px-4">{{ p.recibido_por|default:"—" }}</td>
+                <td class="py-3 px-4">
+                    <span class="px-2 py-0.5 rounded-full text-xs {% if p.estado == 'PENDIENTE' %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ p.get_estado_display }}
+                    </span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="9" class="py-6 text-center text-gray-400">Sin registros.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

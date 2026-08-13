@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Eliminar Departamento{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white rounded-2xl shadow p-8">
+    <h1 class="text-xl font-bold text-gray-800 mb-4">🗑️ Eliminar Departamento</h1>
+    <p class="text-gray-600 mb-4">
+        ¿Confirmas que deseas eliminar el departamento
+        <span class="font-semibold text-gray-800">{{ departamento.numero }}</span>?
+    </p>
+    <p class="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
+        ⚠️ Esto también elimina TODO lo asociado a este departamento: sus residentes,
+        paquetes, mudanzas, visitas y reservas de áreas comunes. No se puede deshacer.
+    </p>
+    <form method="post" class="flex justify-end gap-3">
+        {% csrf_token %}
+        <a href="{% url 'conserjeria:crear_departamento' %}" class="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">Cancelar</a>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-semibold">Sí, eliminar</button>
+    </form>
+</div>
+{% endblock %}

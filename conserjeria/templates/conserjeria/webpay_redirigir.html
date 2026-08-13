@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Redirigiendo a Webpay...{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-2xl shadow p-8 text-center">
+    <h1 class="text-xl font-bold text-gray-800 mb-2">💳 Redirigiendo a Webpay</h1>
+    <p class="text-sm text-gray-500 mb-6">
+        Te estamos llevando a la pasarela de pago para completar la garantía de tu reserva.
+        No cierres esta pestaña.
+    </p>
+    <form id="webpay-form" method="post" action="{{ form_url }}">
+        <input type="hidden" name="token_ws" value="{{ token_ws }}">
+        <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white px-5 py-2 rounded-lg font-semibold">
+            Continuar a Webpay
+        </button>
+    </form>
+</div>
+<script>
+    // Auto-submit: el botón de arriba queda sólo como respaldo por si el
+    // navegador del residente tiene JS deshabilitado.
+    document.getElementById('webpay-form').submit();
+</script>
+{% endblock %}
